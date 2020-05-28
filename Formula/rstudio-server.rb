@@ -1,8 +1,20 @@
 class RstudioServer < Formula
   desc "Integrated development environment (IDE) for R"
   homepage "https://www.rstudio.com"
-  url "https://github.com/rstudio/rstudio/tarball/v1.3.959"
-  sha256 "7c8da3cfa69c2c18795c2bcd07bc1279556280305b290be6f065fd695c075843"
+  head "https://github.com/rstudio/rstudio.git"
+  stable do
+    url "https://github.com/rstudio/rstudio/archive/v1.3.959.tar.gz"
+    sha256 "5c89fe18e3d5ead0e7921c88e5fb42ed816823238e84135f5e9e3a364d35fcc1"
+    # upstream has these patches already but it is too big to be merged
+    patch :DATA
+  end
+
+  bottle do
+    root_url "https://linuxbrew.bintray.com/bottles-base"
+    cellar :any
+    sha256 "255ef12e823fc4f2a3e4c3f673cda58cedbd70e15a002ea63d8921a1fb839a85" => :mojave
+    sha256 "6326a328ed08563c3ce10624b3a868b03a205bea1b7312baa13c321cbbb10d2a" => :x86_64_linux
+  end
 
   if OS.linux?
     depends_on "patchelf" => :build
@@ -12,40 +24,18 @@ class RstudioServer < Formula
     depends_on "linux-pam"
   end
 
-  if ENV["CI"]
-    if OS.linux?
-      depends_on "adoptopenjdk" => :build
-    end
-  end
-
+  depends_on "adoptopenjdk" => :build if ENV["CI"] && OS.linux?
   depends_on "ant" => :build
   if OS.linux?
     depends_on "boost-rstudio-server"
   elsif OS.mac?
-    # TODO: uncomment when on git
-    # depends_on "boost-rstudio-server" => :build
+    depends_on "boost-rstudio-server" => :build
   end
   depends_on "cmake" => :build
   depends_on "gcc" => :build
   depends_on :java => ["1.8", :build]
-  depends_on "openssl"
-  depends_on "soci-rstudio-server"
+  depends_on "openssl@1.1"
   depends_on "r" => :recommended
-
-  resource "gin" do
-    url "https://s3.amazonaws.com/rstudio-buildtools/gin-2.1.2.zip"
-    sha256 "b98e704164f54be596779696a3fcd11be5785c9907a99ec535ff6e9525ad5f9a"
-  end
-
-  resource "gwt" do
-    url "https://s3.amazonaws.com/rstudio-buildtools/gwt-2.8.1.zip"
-    sha256 "0b7af89fdadb4ec51cdb400ace94637d6fe9ffa401b168e2c3d372392a00a0a7"
-  end
-
-  resource "junit" do
-    url "https://s3.amazonaws.com/rstudio-buildtools/junit-4.9b3.jar"
-    sha256 "dc566c3f5da446defe36c534f7ee19cdfe7e565020038b2ef38f01bc9c070551"
-  end
 
   resource "dictionaries" do
     url "https://s3.amazonaws.com/rstudio-buildtools/dictionaries/core-dictionaries.zip"
@@ -59,23 +49,22 @@ class RstudioServer < Formula
 
   if OS.linux?
     resource "pandoc" do
-      url "https://s3.amazonaws.com/rstudio-buildtools/pandoc/2.3.1/pandoc-2.3.1-linux.tar.gz"
-      sha256 "859609cdba5af61aefd7c93d174e412d6a38f5c1be90dfc357158638ff5e7059"
+      url "https://s3.amazonaws.com/rstudio-buildtools/pandoc/2.7.3/pandoc-2.7.3-linux.tar.gz"
+      sha256 "eb775fd42ec50329004d00f0c9b13076e707cdd44745517c8ce2581fb8abdb75"
     end
   elsif OS.mac?
     resource "pandoc" do
-      url "https://s3.amazonaws.com/rstudio-buildtools/pandoc/2.3.1/pandoc-2.3.1-macOS.zip"
-      sha256 "bc9ba6f1f4f447deff811554603edcdb13344b07b969151569b6e46e1c8c81b7"
+      url "https://s3.amazonaws.com/rstudio-buildtools/pandoc/2.7.3/pandoc-2.7.3-macOS.zip"
+      sha256 "fb93800c90f3fab05dbd418ee6180d086b619c9179b822ddfecb608874554ff0"
     end
   end
 
   def which_linux_distribution
     if File.exist?("/etc/redhat-release") || File.exist?("/etc/centos-release")
-      distritbuion = "rpm"
+      "rpm"
     else
-      distritbuion = "debian"
+      "debian"
     end
-    distritbuion
   end
 
   def install
@@ -98,30 +87,14 @@ class RstudioServer < Formula
     ENV["CFLAGS"] = ""
     ENV["CXXFLAGS"] = ""
 
-    gwt_lib = buildpath/"src/gwt/lib/"
-    (gwt_lib/"gin/2.1.2").install resource("gin")
-    (gwt_lib/"gwt/2.8.1").install resource("gwt")
-    gwt_lib.install resource("junit")
-
     common_dir = buildpath/"dependencies/common"
 
     (common_dir/"dictionaries").install resource("dictionaries")
     (common_dir/"mathjax-27").install resource("mathjax")
 
     resource("pandoc").stage do
-      (common_dir/"pandoc/2.3.1/").install "bin/pandoc"
-      (common_dir/"pandoc/2.3.1/").install "bin/pandoc-citeproc"
-    end
-
-    # The if(APPLE) block here will cause crashpad to always be found, even if
-    # it is not actually installed (and we request that it not be included!)
-    inreplace "src/cpp/CMakeLists.txt" do |s|
-      s.gsub! "list(APPEND CRASHPAD_LIBRARIES ${APPLICATION_SERVICES_LIBRARY})", ""
-      s.gsub! "list(APPEND CRASHPAD_LIBRARIES ${CORE_FOUNDATION_LIBRARY})", ""
-      s.gsub! "list(APPEND CRASHPAD_LIBRARIES ${FOUNDATION_LIBRARY})", ""
-      s.gsub! "list(APPEND CRASHPAD_LIBRARIES ${IOKIT_LIBRARY})", ""
-      s.gsub! "list(APPEND CRASHPAD_LIBRARIES ${SECURITY_LIBRARY})", ""
-      s.gsub! "list(APPEND CRASHPAD_LIBRARIES ${BSM_LIBRARY})", ""
+      (common_dir/"pandoc/2.7.3/").install "bin/pandoc"
+      (common_dir/"pandoc/2.7.3/").install "bin/pandoc-citeproc"
     end
 
     mkdir "build" do
@@ -131,6 +104,7 @@ class RstudioServer < Formula
       args << "-DBOOST_ROOT=#{Formula["boost-rstudio-server"].opt_prefix}"
       args << "-DCMAKE_INSTALL_PREFIX=#{prefix}/rstudio-server"
       args << "-DCMAKE_CXX_FLAGS=-I#{Formula["openssl"].opt_include}"
+      args << "-DRSTUDIO_CRASHPAD_ENABLED=0"
 
       linkerflags = "-DCMAKE_EXE_LINKER_FLAGS=-L#{Formula["openssl"].opt_lib}"
       if OS.linux?
@@ -159,20 +133,20 @@ class RstudioServer < Formula
   end
 
   def caveats
-    if OS.linux?
+    daemon = if OS.linux?
       if which_linux_distribution == "rpm"
-        daemon = <<-EOS
+        <<-EOS
 
         sudo cp #{opt_prefix}/extras/systemd/rstudio-server.redhat.service /etc/systemd/system/
         EOS
       else
-        daemon = <<-EOS
+        <<-EOS
 
         sudo cp #{opt_prefix}/extras/systemd/rstudio-server.service /etc/systemd/system/
         EOS
       end
     elsif OS.mac?
-      daemon = <<-EOS
+      <<-EOS
 
         If it is an upgrade or the plist file exists, unload the plist first
         sudo launchctl unload -w /Library/LaunchDaemons/com.rstudio.launchd.rserver.plist
@@ -184,7 +158,7 @@ class RstudioServer < Formula
 
     <<~EOS
       - To test run RStudio Server,
-          #{opt_bin}/rserver --server-daemonize=0
+          #{opt_bin}/rserver --server-daemonize=0 --server-data-dir=/tmp/rserver
 
       - To complete the installation of RStudio Server
           1. register RStudio daemon#{daemon}
@@ -201,13 +175,35 @@ class RstudioServer < Formula
     EOS
   end
 
-  # make the following? Who should own?
-  # sudo mkdir -p /var/run/rstudio-server
-  # sudo mkdir -p /var/lock/rstudio-server # not needed?
-  # sudo mkdir -p /var/log/rstudio-server
-  # sudo mkdir -p /var/lib/rstudio-server
-
   test do
     system "#{bin}/rstudio-server", "version"
   end
 end
+
+
+__END__
+diff --git a/src/cpp/CMakeLists.txt b/src/cpp/CMakeLists.txt
+index af791506eb..5845bdf1a0 100644
+--- a/src/cpp/CMakeLists.txt
++++ b/src/cpp/CMakeLists.txt
+@@ -317,0 +318 @@ endif()
++if (NOT DEFINED RSTUDIO_CRASHPAD_ENABLED OR RSTUDIO_CRASHPAD_ENABLED)
+@@ -338,0 +340 @@ endif()
++endif()
+@@ -527 +528,0 @@ endif()
+
+diff --git a/src/cpp/r/session/REmbeddedPosix.cpp b/src/cpp/r/session/REmbeddedPosix.cpp
+index dc8ea49b16..3ec265cb4d 100644
+--- a/src/cpp/r/session/REmbeddedPosix.cpp
++++ b/src/cpp/r/session/REmbeddedPosix.cpp
+@@ -13,6 +13,8 @@
++#include <Rversion.h>
++
+@@ -104,7 +106,11 @@ void runEmbeddedR(const core::FilePath& /*rHome*/,    // ignored on posix
+-   Rp->R_Slave = FALSE ;
++#if R_VERSION < R_Version(4, 0, 0)
++   Rp->R_Slave = FALSE;
++#else
++   Rp->R_NoEcho = FALSE;
++#endif
+-
