@@ -197,13 +197,25 @@ index dc8ea49b16..3ec265cb4d 100644
 --- a/src/cpp/r/session/REmbeddedPosix.cpp
 +++ b/src/cpp/r/session/REmbeddedPosix.cpp
 @@ -13,6 +13,8 @@
+  *
+  */
+ 
 +#include <Rversion.h>
 +
+ #include <r/RExec.hpp>
+ 
+ #include <shared_core/FilePath.hpp>
 @@ -104,7 +106,11 @@ void runEmbeddedR(const core::FilePath& /*rHome*/,    // ignored on posix
+    structRstart rp;
+    Rstart Rp = &rp;
+    R_DefParams(Rp) ;
 -   Rp->R_Slave = FALSE ;
 +#if R_VERSION < R_Version(4, 0, 0)
 +   Rp->R_Slave = FALSE;
 +#else
 +   Rp->R_NoEcho = FALSE;
 +#endif
+    Rp->R_Quiet = quiet ? TRUE : FALSE;
+    Rp->R_Interactive = TRUE ;
+    Rp->SaveAction = defaultSaveAction ;
 -
