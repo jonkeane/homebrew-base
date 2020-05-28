@@ -1,16 +1,8 @@
 class RstudioServer < Formula
   desc "Integrated development environment (IDE) for R"
   homepage "https://www.rstudio.com"
-  url "https://github.com/rstudio/rstudio/archive/v1.2.5042.tar.gz"
-  sha256 "2bcd1d525d92e9ce42f4c7a57383c025e10d34313f8ed245429f02980b47c1fc"
-
-  # TODO: add bottle info
-  # bottle do
-  #   root_url "https://linuxbrew.bintray.com/bottles-base"
-  #   cellar :any
-  #   sha256 "255ef12e823fc4f2a3e4c3f673cda58cedbd70e15a002ea63d8921a1fb839a85" => :mojave
-  #   sha256 "6326a328ed08563c3ce10624b3a868b03a205bea1b7312baa13c321cbbb10d2a" => :x86_64_linux
-  # end
+  url "https://github.com/rstudio/rstudio/tarball/v1.3.959"
+  sha256 "7c8da3cfa69c2c18795c2bcd07bc1279556280305b290be6f065fd695c075843"
 
   if OS.linux?
     depends_on "patchelf" => :build
@@ -30,12 +22,14 @@ class RstudioServer < Formula
   if OS.linux?
     depends_on "boost-rstudio-server"
   elsif OS.mac?
-    depends_on "boost-rstudio-server" => :build
+    # TODO: uncomment when on git
+    # depends_on "boost-rstudio-server" => :build
   end
   depends_on "cmake" => :build
   depends_on "gcc" => :build
   depends_on :java => ["1.8", :build]
   depends_on "openssl"
+  depends_on "soci-rstudio-server"
   depends_on "r" => :recommended
 
   resource "gin" do
@@ -59,8 +53,8 @@ class RstudioServer < Formula
   end
 
   resource "mathjax" do
-    url "https://s3.amazonaws.com/rstudio-buildtools/mathjax-26.zip"
-    sha256 "939a2d7f37e26287970be942df70f3e8f272bac2eb868ce1de18bb95d3c26c71"
+    url "https://s3.amazonaws.com/rstudio-buildtools/mathjax-27.zip"
+    sha256 "c56cbaa6c4ce03c1fcbaeb2b5ea3c312d2fb7626a360254770cbcb88fb204176"
   end
 
   if OS.linux?
@@ -112,11 +106,22 @@ class RstudioServer < Formula
     common_dir = buildpath/"dependencies/common"
 
     (common_dir/"dictionaries").install resource("dictionaries")
-    (common_dir/"mathjax-26").install resource("mathjax")
+    (common_dir/"mathjax-27").install resource("mathjax")
 
     resource("pandoc").stage do
       (common_dir/"pandoc/2.3.1/").install "bin/pandoc"
       (common_dir/"pandoc/2.3.1/").install "bin/pandoc-citeproc"
+    end
+
+    # The if(APPLE) block here will cause crashpad to always be found, even if
+    # it is not actually installed (and we request that it not be included!)
+    inreplace "src/cpp/CMakeLists.txt" do |s|
+      s.gsub! "list(APPEND CRASHPAD_LIBRARIES ${APPLICATION_SERVICES_LIBRARY})", ""
+      s.gsub! "list(APPEND CRASHPAD_LIBRARIES ${CORE_FOUNDATION_LIBRARY})", ""
+      s.gsub! "list(APPEND CRASHPAD_LIBRARIES ${FOUNDATION_LIBRARY})", ""
+      s.gsub! "list(APPEND CRASHPAD_LIBRARIES ${IOKIT_LIBRARY})", ""
+      s.gsub! "list(APPEND CRASHPAD_LIBRARIES ${SECURITY_LIBRARY})", ""
+      s.gsub! "list(APPEND CRASHPAD_LIBRARIES ${BSM_LIBRARY})", ""
     end
 
     mkdir "build" do
@@ -195,6 +200,12 @@ class RstudioServer < Formula
           auth-minimum-user-id=500
     EOS
   end
+
+  # make the following? Who should own?
+  # sudo mkdir -p /var/run/rstudio-server
+  # sudo mkdir -p /var/lock/rstudio-server # not needed?
+  # sudo mkdir -p /var/log/rstudio-server
+  # sudo mkdir -p /var/lib/rstudio-server
 
   test do
     system "#{bin}/rstudio-server", "version"
