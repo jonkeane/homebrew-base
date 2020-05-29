@@ -5,8 +5,13 @@ class RstudioServer < Formula
   stable do
     url "https://github.com/rstudio/rstudio/archive/v1.3.959.tar.gz"
     sha256 "5c89fe18e3d5ead0e7921c88e5fb42ed816823238e84135f5e9e3a364d35fcc1"
-    # upstream has these patches already but it is too big to be merged
-    patch :DATA
+    # upstream has this patch already but it is too big to be merged
+    patch :p0 :DATA
+    # upstream has this patch already, but without it building against R 4.0 fails
+    patch :p1 do
+      url "https://github.com/rstudio/rstudio/commit/3fb2397.diff?full_index=1"
+      sha256 "4f7299400c584f6262a7ecdde718e9b72767e7aa4ba6762929d3ec3db773c6c7"
+    end
   end
 
   bottle do
@@ -191,31 +196,4 @@ index af791506eb..5845bdf1a0 100644
 @@ -338,0 +340 @@ endif()
 +endif()
 @@ -527 +528,0 @@ endif()
-
-diff --git a/src/cpp/r/session/REmbeddedPosix.cpp b/src/cpp/r/session/REmbeddedPosix.cpp
-index dc8ea49b16..3ec265cb4d 100644
---- a/src/cpp/r/session/REmbeddedPosix.cpp
-+++ b/src/cpp/r/session/REmbeddedPosix.cpp
-@@ -13,6 +13,8 @@
-  *
-  */
- 
-+#include <Rversion.h>
-+
- #include <r/RExec.hpp>
- 
- #include <shared_core/FilePath.hpp>
-@@ -104,7 +106,11 @@ void runEmbeddedR(const core::FilePath& /*rHome*/,    // ignored on posix
-    structRstart rp;
-    Rstart Rp = &rp;
-    R_DefParams(Rp) ;
--   Rp->R_Slave = FALSE ;
-+#if R_VERSION < R_Version(4, 0, 0)
-+   Rp->R_Slave = FALSE;
-+#else
-+   Rp->R_NoEcho = FALSE;
-+#endif
-    Rp->R_Quiet = quiet ? TRUE : FALSE;
-    Rp->R_Interactive = TRUE ;
-    Rp->SaveAction = defaultSaveAction ;
 -
