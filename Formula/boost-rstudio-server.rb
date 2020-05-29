@@ -99,30 +99,30 @@ class BoostRstudioServer < Formula
     s
   end
 
-  # test do
-  #   (testpath/"test.cpp").write <<~EOS
-  #     #include <boost/algorithm/string.hpp>
-  #     #include <string>
-  #     #include <vector>
-  #     #include <assert.h>
-  #     using namespace boost::algorithm;
-  #     using namespace std;
-  #     int main()
-  #     {
-  #       string str("a,b");
-  #       vector<string> strVec;
-  #       split(strVec, str, is_any_of(","));
-  #       assert(strVec.size()==2);
-  #       assert(strVec[0]=="a");
-  #       assert(strVec[1]=="b");
-  #       return 0;
-  #     }
-  #   EOS
-  #   if OS.mac?
-  #     system ENV.cxx, "test.cpp", "-std=c++14", "-stdlib=libc++", "-o", "test"
-  #   else
-  #     system ENV.cxx, "test.cpp", "-std=c++14", "-o", "test"
-  #   end
-  #   system "./test"
-  # end
+  test do
+    (testpath/"test.cpp").write <<~EOS
+      #include <boost/algorithm/string.hpp>
+      #include <string>
+      #include <vector>
+      #include <assert.h>
+      using namespace boost::algorithm;
+      using namespace std;
+      int main()
+      {
+        string str("a,b");
+        vector<string> strVec;
+        split(strVec, str, is_any_of(","));
+        assert(strVec.size()==2);
+        assert(strVec[0]=="a");
+        assert(strVec[1]=="b");
+        return 0;
+      }
+    EOS
+    if OS.mac?
+      system ENV.cxx, "test.cpp", "-std=c++14", "-stdlib=libc++", "-o", "test"
+    else
+      system ENV.cxx, "test.cpp", "-std=c++14", "-o", "test"
+    end
+    system "./test"
+  end
 end
