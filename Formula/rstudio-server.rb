@@ -32,7 +32,7 @@ class RstudioServer < Formula
   depends_on "adoptopenjdk" => :build if ENV["CI"] && OS.linux?
   depends_on "ant" => :build
   if OS.linux?
-    depends_on "boost-rstudio-server"
+    depends_on "boost-rstudio-server" => :build
   elsif OS.mac?
     depends_on "boost-rstudio-server" => :build
   end
