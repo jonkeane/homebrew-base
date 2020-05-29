@@ -76,7 +76,7 @@ class RstudioServer < Formula
     # Reduce memory usage below 4 GB for CI.
     if OS.linux? && ENV["CI"]
       ENV["MAKEFLAGS"] = "-j2"
-  elsif OS.mac? && ENV["CI"]
+    elsif OS.mac? && ENV["CI"]
       ENV["MAKEFLAGS"] = "-j4"
     end
 
@@ -98,7 +98,7 @@ class RstudioServer < Formula
     resource("pandoc").stage do
       (common_dir/"pandoc/2.7.3/").install "bin/pandoc"
       (common_dir/"pandoc/2.7.3/").install "bin/pandoc-citeproc"
-  end
+    end
 
     mkdir "build" do
       args = ["-DRSTUDIO_TARGET=Server", "-DCMAKE_BUILD_TYPE=Release"]
@@ -112,7 +112,7 @@ class RstudioServer < Formula
       args << "-DCMAKE_OSX_SYSROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk" if OS.mac?
 
       linkerflags = "-DCMAKE_EXE_LINKER_FLAGS=-L#{Formula["openssl"].opt_lib}"
-      linkerflags += " -L#{Formula["linux-pam"].opt_lib}" if build.with? "linux-pam" if OS.linux?
+      linkerflags += " -L#{Formula["linux-pam"].opt_lib}" if (build.with? "linux-pam") && OS.linux?
       args << linkerflags
 
       args << "-DPAM_INCLUDE_DIR=#{Formula["linux-pam"].opt_include}" if build.with? "linux-pam"
