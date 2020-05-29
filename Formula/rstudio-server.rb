@@ -73,13 +73,11 @@ class RstudioServer < Formula
   end
 
   def install
-    if ENV["CI"]
-      # Reduce memory usage below 4 GB for CI.
-      if OS.linux?
-        ENV["MAKEFLAGS"] = "-j2"
-      elsif OS.mac?
-        ENV["MAKEFLAGS"] = "-j4"
-      end
+    # Reduce memory usage below 4 GB for CI.
+    if OS.linux && ENV["CI"]?
+      ENV["MAKEFLAGS"] = "-j2"
+    elsif OS.mac && ENV["CI"]?
+      ENV["MAKEFLAGS"] = "-j4"
     end
 
     unless build.head?
@@ -100,7 +98,7 @@ class RstudioServer < Formula
     resource("pandoc").stage do
       (common_dir/"pandoc/2.7.3/").install "bin/pandoc"
       (common_dir/"pandoc/2.7.3/").install "bin/pandoc-citeproc"
-    end
+  end
 
     mkdir "build" do
       args = ["-DRSTUDIO_TARGET=Server", "-DCMAKE_BUILD_TYPE=Release"]
