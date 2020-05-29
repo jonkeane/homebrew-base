@@ -74,9 +74,9 @@ class RstudioServer < Formula
 
   def install
     # Reduce memory usage below 4 GB for CI.
-    if OS.linux && ENV["CI"]?
+    if OS.linux? && ENV["CI"]
       ENV["MAKEFLAGS"] = "-j2"
-    elsif OS.mac && ENV["CI"]?
+  elsif OS.mac? && ENV["CI"]
       ENV["MAKEFLAGS"] = "-j4"
     end
 
