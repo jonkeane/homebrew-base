@@ -6,7 +6,7 @@ class RstudioServer < Formula
     url "https://github.com/rstudio/rstudio/archive/v1.3.959.tar.gz"
     sha256 "5c89fe18e3d5ead0e7921c88e5fb42ed816823238e84135f5e9e3a364d35fcc1"
     # upstream has this patch already but it is too big to be merged
-    patch :p0 :DATA
+    patch :DATA
     # upstream has this patch already, but without it building against R 4.0 fails
     patch :p1 do
       url "https://github.com/rstudio/rstudio/commit/3fb2397.diff?full_index=1"
