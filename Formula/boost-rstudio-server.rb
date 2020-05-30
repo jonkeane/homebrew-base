@@ -66,7 +66,6 @@ class BoostRstudioServer < Formula
       --layout=tagged-1.66
       --user-config=user-config.jam
       -sNO_LZMA=1
-      -sNO_ZSTD=1
       install
       threading=multi,single
       link=shared,static
