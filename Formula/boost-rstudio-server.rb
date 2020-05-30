@@ -63,9 +63,10 @@ class BoostRstudioServer < Formula
       --libdir=#{lib}
       -d2
       -j#{ENV.make_jobs}
-      --layout=tagged-1.66
+      --layout=tagged
       --user-config=user-config.jam
       -sNO_LZMA=1
+      -sNO_ZSTD=1
       install
       threading=multi,single
       link=shared,static
