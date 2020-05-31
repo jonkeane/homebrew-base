@@ -110,6 +110,9 @@ class RstudioServer < Formula
       args << "-DCMAKE_CXX_FLAGS=-I#{Formula["openssl"].opt_include}"
       args << "-DRSTUDIO_CRASHPAD_ENABLED=0"
       args << "-DCMAKE_OSX_SYSROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk" if OS.mac?
+      args << "-DLIBR_HOME=#{Formula["r"].opt_prefix}/lib/R" if OS.linux?
+      args << "-DLIBR_INCLUDE_DIRS=#{Formula["r"].opt_prefix}/lib/R/include" if OS.linux?
+      args << "-DLIBR_DOC_DIR=#{Formula["r"].opt_prefix}/lib/R/doc" if OS.linux?
 
       linkerflags = "-DCMAKE_EXE_LINKER_FLAGS=-L#{Formula["openssl"].opt_lib}"
       linkerflags += " -L#{Formula["linux-pam"].opt_lib}" if OS.linux? && (build.with? "linux-pam")
