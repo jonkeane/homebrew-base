@@ -41,12 +41,8 @@ class BoostRstudioServer < Formula
     bootstrap_args = %W[
       --prefix=#{prefix}
       --libdir=#{lib}
+      --with-icu=#{icu4c_prefix}
     ]
-    bootstrap_args << if OS.mac?
-      "--with-icu=#{icu4c_prefix}"
-    else
-      "--without-icu"
-    end
 
     # Handle libraries that will not be built.
     without_libraries = ["python", "mpi"]
