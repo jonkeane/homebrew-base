@@ -27,13 +27,12 @@ class RstudioServer < Formula
     depends_on "ncurses"
     depends_on "util-linux" # for libuuid
     depends_on "linux-pam"
-    depends_on "icu4c"
   end
 
   depends_on "adoptopenjdk" => :build if ENV["CI"] && OS.linux?
   depends_on "ant" => :build
   if OS.linux?
-    depends_on "boost-rstudio-server" => :build
+    depends_on "boost-rstudio-server"
   elsif OS.mac?
     depends_on "boost-rstudio-server" => :build
   end
