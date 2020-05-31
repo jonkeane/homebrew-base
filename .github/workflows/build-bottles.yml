@@ -19,6 +19,10 @@ jobs:
       image: homebrew/ubuntu16.04
     steps:
       - uses: actions/checkout@master
+      
+      - name: tmate
+        uses: mxschmitt/action-tmate@v2
+      
       - name: Build bottles
         run: |
           mkdir -p "$(dirname $(brew --repo ${{github.repository}}))"
@@ -27,9 +31,6 @@ jobs:
           cd ~/bottles
           # brew test-bot --bintray-org=linuxbrew --root-url=https://linuxbrew.bintray.com/bottles-base --git-name=LinuxbrewTestBot --git-email=testbot@linuxbrew.sh
           # cp -a ~/bottles $RUNNER_TEMP/
-          
-      - name: tmate
-        uses: mxschmitt/action-tmate@v2
         
       - name: Upload bottles
         uses: actions/upload-artifact@v1
