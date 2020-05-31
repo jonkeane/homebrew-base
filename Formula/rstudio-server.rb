@@ -27,6 +27,7 @@ class RstudioServer < Formula
     depends_on "ncurses"
     depends_on "util-linux" # for libuuid
     depends_on "linux-pam"
+    depends_on "icu4c"
   end
 
   depends_on "adoptopenjdk" => :build if ENV["CI"] && OS.linux?
