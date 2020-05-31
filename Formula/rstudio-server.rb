@@ -41,7 +41,7 @@ class RstudioServer < Formula
   depends_on "gcc" => :build
   depends_on :java => ["1.8", :build]
   depends_on "openssl@1.1"
-  depends_on "r" => :recommended
+  depends_on "r"
 
   resource "dictionaries" do
     url "https://s3.amazonaws.com/rstudio-buildtools/dictionaries/core-dictionaries.zip"
