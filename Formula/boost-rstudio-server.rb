@@ -120,10 +120,10 @@ class BoostRstudioServer < Formula
     EOS
     if OS.mac?
       system ENV.cxx, "test.cpp", "-std=c++14", "-stdlib=libc++",
-             "-I#{include}", "-L#{lib}", "-o", "test"
+             "-I#{include}", "-L#{lib}", "-lboost_system", "-o", "test"
     else
       system ENV.cxx, "test.cpp", "-std=c++14", "-I#{include}", "-L#{lib}",
-                      "-o", "test"
+                      "-lboost_system", "-o", "test"
     end
     system "./test"
   end
