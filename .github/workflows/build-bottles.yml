@@ -18,24 +18,15 @@ jobs:
     container:
       image: homebrew/ubuntu16.04
     steps:
-      - uses: actions/checkout@v2
-      
-      - name: ugh
-        run: sudo apt-get install -y tmate openssh-client
-      
-      - name: tmate
-        uses: mxschmitt/action-tmate@v2
-      
+      - uses: actions/checkout@master
       - name: Build bottles
         run: |
           mkdir -p "$(dirname $(brew --repo ${{github.repository}}))"
           cp -a "$GITHUB_WORKSPACE" "$(brew --repo ${{github.repository}})"
           mkdir ~/bottles
           cd ~/bottles
-          # brew test-bot --bintray-org=linuxbrew --root-url=https://linuxbrew.bintray.com/bottles-base --git-name=LinuxbrewTestBot --git-email=testbot@linuxbrew.sh
-          # cp -a ~/bottles $RUNNER_TEMP/
-          
-
+          brew test-bot --bintray-org=linuxbrew --root-url=https://linuxbrew.bintray.com/bottles-base --git-name=LinuxbrewTestBot --git-email=testbot@linuxbrew.sh
+          cp -a ~/bottles $RUNNER_TEMP/
       - name: Upload bottles
         uses: actions/upload-artifact@v1
         with:
