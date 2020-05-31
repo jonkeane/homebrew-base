@@ -67,10 +67,11 @@ class RstudioServer < Formula
 
   def which_linux_distribution
     if File.exist?("/etc/redhat-release") || File.exist?("/etc/centos-release")
-      "rpm"
+      distritbuion = "rpm"
     else
-      "debian"
+      distritbuion = "debian"
     end
+    distritbuion
   end
 
   def install
