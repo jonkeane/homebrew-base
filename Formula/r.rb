@@ -23,7 +23,7 @@ class R < Formula
   depends_on "xz"
   if OS.linux?
     depends_on "curl"
-    depends_on "sed"
+    depends_on "gnu-sed"
   end
 
   # needed to preserve executable permissions on files without shebangs
