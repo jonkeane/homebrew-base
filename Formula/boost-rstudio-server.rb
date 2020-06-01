@@ -8,7 +8,7 @@ class BoostRstudioServer < Formula
   bottle do
     root_url "https://linuxbrew.bintray.com/bottles-base"
     cellar :any_skip_relocation
-    sha256 "a6c23ff218b8d59b7ae4eb1640a703a74453cd604e723b7bedf75a957f98c006" => :sierra
+    sha256 "a6c23ff218b8d59b7ae4eb1640a703a74453cd604e723b7bedf75a957f98c006" => :catalina
     sha256 "7a0b1493c1c28d4eefe193b45cc818fbf580162a98e123a1d09c735429974eb2" => :x86_64_linux
   end
 

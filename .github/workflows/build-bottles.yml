@@ -27,8 +27,6 @@ jobs:
           cd ~/bottles
           brew test-bot --bintray-org=linuxbrew --root-url=https://linuxbrew.bintray.com/bottles-base --git-name=LinuxbrewTestBot --git-email=testbot@linuxbrew.sh
           cp -a ~/bottles $RUNNER_TEMP/
-      - name: Test if can install
-        run: brew install --verbose --build-from-source rstudio-server
       - name: Upload bottles
         uses: actions/upload-artifact@v1
         with:
