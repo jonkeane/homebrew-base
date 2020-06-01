@@ -23,6 +23,7 @@ jobs:
         run: |
           mkdir -p "$(dirname $(brew --repo ${{github.repository}}))"
           cp -a "$GITHUB_WORKSPACE" "$(brew --repo ${{github.repository}})"
+          brew install --build-from-srouce r
           mkdir ~/bottles
           cd ~/bottles
           brew test-bot --bintray-org=linuxbrew --root-url=https://linuxbrew.bintray.com/bottles-base --git-name=LinuxbrewTestBot --git-email=testbot@linuxbrew.sh
