@@ -21,6 +21,8 @@ class R < Formula
   depends_on "pcre2"
   depends_on "readline"
   depends_on "xz"
+  # added to build on linux
+  depends_on "curl"
 
   # needed to preserve executable permissions on files without shebangs
   skip_clean "lib/R/bin", "lib/R/doc"
