@@ -10,6 +10,7 @@ class R < Formula
     sha256 "cff148724950c35ef1f42450259ea2775e82101af114fd306dc20df04a9d13c0" => :catalina
     sha256 "55bf4a20c65107934cad232c4e031d88920bb7e57d4b044350c0109899f53fcc" => :mojave
     sha256 "1ebe182e8e6dde809cbb181a63a395d906ee0ea326bb80b432ecebacbea8b889" => :high_sierra
+    sha256 "320a0f0a2a93c118e8662fcc5fe36c187bf1e00f2b6cc1475a07ff20dd0c0c54" => :x86_64_linux
   end
 
   depends_on "pkg-config" => :build
@@ -21,6 +22,13 @@ class R < Formula
   depends_on "pcre2"
   depends_on "readline"
   depends_on "xz"
+
+  unless OS.mac?
+    depends_on "cairo"
+    depends_on "curl"
+    depends_on "pango"
+    depends_on "linuxbrew/xorg/xorg"
+  end
 
   # needed to preserve executable permissions on files without shebangs
   skip_clean "lib/R/bin", "lib/R/doc"
@@ -35,16 +43,30 @@ class R < Formula
     args = [
       "--prefix=#{prefix}",
       "--enable-memory-profiling",
-      "--without-cairo",
-      "--without-tcltk",
-      "--without-x",
-      "--with-aqua",
       "--with-lapack",
       "--enable-R-shlib",
-      "SED=/usr/bin/sed", # don't remember Homebrew's sed shim
       "--disable-java",
       "--with-blas=-L#{Formula["openblas"].opt_lib} -lopenblas",
     ]
+
+    # don't remember Homebrew's sed shim
+    args << "SED=/usr/bin/sed" if File.exist?("/usr/bin/sed")
+
+    if OS.mac?
+      args << "--without-cairo"
+      args << "--without-tcltk"
+      args << "--without-x"
+      args << "--with-aqua"
+    end
+
+    unless OS.mac?
+      args << "--libdir=#{lib}" # avoid using lib64 on CentOS
+      args << "--with-cairo"
+
+      # If LDFLAGS contains any -L options, configure sets LD_LIBRARY_PATH to
+      # search those directories. Remove -LHOMEBREW_PREFIX/lib from LDFLAGS.
+      ENV.remove "LDFLAGS", "-L#{HOMEBREW_PREFIX}/lib"
+    end
 
     # Help CRAN packages find gettext and readline
     ["gettext", "readline"].each do |f|
@@ -78,8 +100,10 @@ class R < Formula
     lib.install_symlink Dir[r_home/"lib/*"]
 
     # avoid triggering mandatory rebuilds of r when gcc is upgraded
-    inreplace lib/"R/etc/Makeconf", Formula["gcc"].prefix.realpath,
-                                    Formula["gcc"].opt_prefix
+    inreplace lib/"R/etc/Makeconf",
+      Formula["gcc"].prefix.realpath,
+      Formula["gcc"].opt_prefix,
+      OS.mac?
   end
 
   def post_install
@@ -91,8 +115,9 @@ class R < Formula
   end
 
   test do
+    dylib_ext = OS.mac? ? ".dylib" : ".so"
     assert_equal "[1] 2", shell_output("#{bin}/Rscript -e 'print(1+1)'").chomp
-    assert_equal ".dylib", shell_output("#{bin}/R CMD config DYLIB_EXT").chomp
+    assert_equal dylib_ext, shell_output("#{bin}/R CMD config DYLIB_EXT").chomp
 
     system bin/"Rscript -e \'install.packages(\"gss\", \".\", \"https://cloud.r-project.org\")\'"
     assert_predicate testpath/"gss/libs/gss.so", :exist?,

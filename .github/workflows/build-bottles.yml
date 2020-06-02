@@ -19,12 +19,6 @@ jobs:
       image: homebrew/ubuntu16.04
     steps:
       - uses: actions/checkout@master
-      
-      - name: Install R 
-        run: |
-          brew update
-          brew install --build-from-source r
-
       - name: Build bottles
         run: |
           mkdir -p "$(dirname $(brew --repo ${{github.repository}}))"
